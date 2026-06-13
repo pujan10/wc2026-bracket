@@ -1,0 +1,14 @@
+{
+  "name": "wc2026-bracket-predictor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive FIFA World Cup 2026 bracket predictor — pick every group finish and knockout winner on the way to crowning a champion.",
+  "scripts": {
+    "test": "node tests/test_logic.js && node tests/test_share.js",
+    "test:dom": "node tests/test_dom.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  },
+  "license": "MIT"
+}

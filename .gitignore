@@ -1,0 +1,12 @@
+# dependencies (none needed at runtime; only for optional tests)
+node_modules/
+package-lock.json
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# local screenshots / scratch
+shot*.png
+*.local

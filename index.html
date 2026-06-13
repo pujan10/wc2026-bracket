@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cup 2026 — Bracket Predictor</title>
+  <meta name="description" content="Predict every World Cup 2026 result — group stages to the final. The bracket builds itself as you pick." />
+  <link rel="preconnect" href="https://flagcdn.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+
+  <!-- ============================ HEADER ============================ -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">
+          <span class="brand__ball">26</span>
+        </div>
+        <div class="brand__text">
+          <h1>World Cup <span>2026</span></h1>
+          <p>Bracket Predictor
+            <span class="brand__hosts" id="hostFlags" aria-label="Hosts: USA, Canada, Mexico"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="topbar__progress">
+        <div class="progress">
+          <div class="progress__bar" id="progressBar"></div>
+        </div>
+        <div class="progress__meta">
+          <span id="progressLabel">Start by predicting your groups</span>
+          <span id="progressPct" class="progress__pct">0%</span>
+        </div>
+      </div>
+
+      <div class="topbar__actions">
+        <button class="btn btn--ghost" id="btnShare" title="Copy a shareable link">Share</button>
+        <button class="btn btn--ghost" id="btnExport" title="Download your bracket as an image">Export</button>
+        <button class="btn btn--danger-ghost" id="btnReset" title="Clear all picks">Reset</button>
+      </div>
+    </div>
+
+    <!-- Stage navigation -->
+    <nav class="stages" id="stageNav">
+      <button class="stage is-active" data-stage="groups">
+        <span class="stage__num">1</span>
+        <span class="stage__label">Group Stage</span>
+        <span class="stage__hint" id="hintGroups">0 / 8 third-place spots</span>
+      </button>
+      <button class="stage" data-stage="knockouts">
+        <span class="stage__num">2</span>
+        <span class="stage__label">Knockouts</span>
+        <span class="stage__hint" id="hintKnockouts">Round of 32 → Final</span>
+      </button>
+      <button class="stage" data-stage="summary">
+        <span class="stage__num">3</span>
+        <span class="stage__label">Your Champion</span>
+        <span class="stage__hint" id="hintSummary">Crown a winner</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============================ GROUPS ============================ -->
+    <section class="view is-active" id="view-groups">
+      <div class="view__head">
+        <div>
+          <h2>Predict the group stage</h2>
+          <p class="muted">Drag teams or use the arrows to set each group's final 1st–4th. The top two
+            qualify automatically. Then choose the <strong>8 best third-placed teams</strong> to complete the Round of 32.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn--soft" id="btnFavourites" title="Order every group by seeding strength">★ Favourites</button>
+          <button class="btn btn--soft" id="btnSurprise" title="Shuffle every group randomly">⚄ Surprise me</button>
+          <button class="btn btn--soft" id="btnClearGroups" title="Reset groups to the drawn order">↺ Drawn order</button>
+        </div>
+      </div>
+
+      <div class="groups-grid" id="groupsGrid"></div>
+
+      <!-- Third place selector -->
+      <div class="thirds" id="thirdsPanel">
+        <div class="thirds__head">
+          <div>
+            <h3>Best third-placed teams</h3>
+            <p class="muted">8 of the 12 third-placed teams advance. Pick the <strong>8</strong> you think make it.</p>
+          </div>
+          <div class="thirds__counter">
+            <span id="thirdsCount">0</span><span class="thirds__counter-sep">/</span>8
+            <button class="btn btn--soft btn--sm" id="btnBestThirds" title="Auto-pick the 8 strongest">Auto</button>
+          </div>
+        </div>
+        <div class="thirds__grid" id="thirdsGrid"></div>
+        <div class="thirds__cta">
+          <button class="btn btn--primary" id="btnToKnockouts" disabled>Build my knockout bracket →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ KNOCKOUTS ============================ -->
+    <section class="view" id="view-knockouts">
+      <div class="view__head">
+        <div>
+          <h2>Build your bracket to the final</h2>
+          <p class="muted">Click the team you think wins each tie. Winners flow into the next round automatically.
+            Change an earlier pick and anything downstream re-opens.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn--soft" id="btnKoFavourites" title="Auto-advance the higher seed in every tie">★ Favourites</button>
+          <button class="btn btn--soft" id="btnKoSurprise" title="Randomly resolve every tie">⚄ Surprise me</button>
+          <button class="btn btn--soft" id="btnKoClear" title="Clear all knockout picks">↺ Clear picks</button>
+        </div>
+      </div>
+
+      <div class="ko-empty" id="koEmpty">
+        <p>Finish your group predictions first — pick your <strong>8 best third-placed teams</strong> to unlock the bracket.</p>
+        <button class="btn btn--primary" data-goto="groups">← Back to groups</button>
+      </div>
+
+      <div class="bracket-wrap" id="bracketWrap" hidden>
+        <div class="bracket" id="bracket"></div>
+      </div>
+    </section>
+
+    <!-- ============================ SUMMARY ============================ -->
+    <section class="view" id="view-summary">
+      <div class="summary" id="summary"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Unofficial fan project · Group draw &amp; bracket wiring per FIFA's 2026 format · Flags via flagcdn.com</p>
+    <p class="muted">Your picks are saved automatically in this browser.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="bracket.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
